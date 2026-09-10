@@ -1,0 +1,309 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tender-review/task-role-definition/v1/schema.json",
+  "type": "object",
+  "description": "Explicit model-reviewed role definition, not a completeness claim. Runtime uses dedicated field checks.",
+  "additionalProperties": false,
+  "required": [
+    "purpose",
+    "io_scope",
+    "resources",
+    "hard_constraints",
+    "acceptance_criteria",
+    "failure_policy",
+    "delivery_requirements",
+    "role",
+    "role_task"
+  ],
+  "properties": {
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Bounded goal and necessary background without changing hard constraints."
+    },
+    "io_scope": {
+      "type": "object",
+      "description": "Explicit read-only sources and separately owned write locations. Subject to existing authorization.",
+      "additionalProperties": false,
+      "required": [
+        "read_only_paths",
+        "callee_write_paths",
+        "lead_write_paths"
+      ],
+      "properties": {
+        "read_only_paths": {
+          "type": "array",
+          "description": "Only authorized input/spec/source/installed-resource paths.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "callee_write_paths": {
+          "type": "array",
+          "description": "Output locations owned by the callee; Lead only reads these.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "lead_write_paths": {
+          "type": "array",
+          "description": "Receipt/consolidation locations owned by the lead; disjoint from callee output ownership.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "Resolved required file/version/hash bindings. Missing mandatory bindings block dispatch; an empty list is not proof none are required.",
+      "items": {
+        "type": "object",
+        "description": "A currently resolved file binding required by a quoted constraint; no substitution when unresolved.",
+        "additionalProperties": false,
+        "required": [
+          "resource_id",
+          "constraint_ids",
+          "kind",
+          "path",
+          "expected_sha256"
+        ],
+        "properties": {
+          "resource_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique resource binding ID."
+          },
+          "constraint_ids": {
+            "type": "array",
+            "description": "Existing hard-constraint IDs requiring this resource.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Constraint ID."
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Kind of file being bound.",
+            "enum": [
+              "installed_skill",
+              "helper",
+              "runtime_executable",
+              "dependency_lock",
+              "input_manifest",
+              "capability_receipt",
+              "contract_schema",
+              "other"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact required or observed version when applicable; do not infer or invent."
+          },
+          "expected_sha256": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Independently expected SHA256 of exact binary bytes. Only authorized explicit files are read, never executed.",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "hard_constraints": {
+      "type": "array",
+      "description": "Every applicable upstream hard constraint, individually mapped to its verbatim source. Schema cannot prove no omission.",
+      "items": {
+        "type": "object",
+        "description": "A hard instruction copied without paraphrase from one identified source. Completeness still requires comparison against the original.",
+        "additionalProperties": false,
+        "required": [
+          "constraint_id",
+          "category",
+          "source_id",
+          "quote",
+          "applies_to",
+          "verification"
+        ],
+        "properties": {
+          "constraint_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique constraint ID, used unchanged by dispatch, preflight and delivery."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Classification only; never changes the quoted instruction.",
+            "enum": [
+              "tool",
+              "skill_helper",
+              "runtime_dependency",
+              "model_approval",
+              "input_output_scope",
+              "evidence",
+              "timeout_temp",
+              "context",
+              "ownership",
+              "failure",
+              "other"
+            ]
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "An existing instruction_sources.source_id."
+          },
+          "applies_to": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Who must satisfy this constraint; does not grant authority.",
+            "enum": [
+              "lead",
+              "callee",
+              "both"
+            ]
+          },
+          "verification": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What actual observation/receipt is required to establish compliance; not a self-attestation flag."
+          },
+          "quote": {
+            "type": "object",
+            "description": "Exact unique original substring, optionally within inclusive physical lines. No normalization or first-match fallback.",
+            "additionalProperties": false,
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "description": "Exact non-whitespace original substring."
+              },
+              "line_start": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "1-based inclusive line start; requires line_end."
+              },
+              "line_end": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Inclusive line end >= start; requires line_start."
+              }
+            },
+            "dependencies": {
+              "line_start": [
+                "line_end"
+              ],
+              "line_end": [
+                "line_start"
+              ]
+            }
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Evidence-backed acceptance criteria referencing the same constraints.",
+      "items": {
+        "type": "object",
+        "description": "Source-backed acceptance obligation, independent of whether a child claims success.",
+        "additionalProperties": false,
+        "required": [
+          "criterion_id",
+          "constraint_ids",
+          "text"
+        ],
+        "properties": {
+          "criterion_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique acceptance criterion ID."
+          },
+          "constraint_ids": {
+            "type": "array",
+            "description": "Existing constraint IDs tested by this criterion.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Constraint ID."
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Evidence and outcome required; retain uncertainty/failure treatment from source."
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "failure_policy": {
+      "const": "report_and_stop_affected_work_without_substitution",
+      "description": "Report mismatches/unavailable prerequisites. Preserve evidence; no silent alternative runtime/tool/method or fabricated success."
+    },
+    "delivery_requirements": {
+      "type": "array",
+      "description": "Required raw evidence, identities and files as specified by the task; summaries do not replace required full artifacts.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Exact delivery obligation."
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "requirements",
+        "commercial",
+        "visual",
+        "evidence"
+      ],
+      "description": "Explicit semantic role, not inferred from Agent ID."
+    },
+    "role_task": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Model-reviewed assignment; no authorization."
+    }
+  }
+}

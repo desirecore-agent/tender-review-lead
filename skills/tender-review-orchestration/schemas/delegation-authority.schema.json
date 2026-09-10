@@ -1,0 +1,256 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tender-review/lead-task-spec-authority/v1/schema.json",
+  "type": "object",
+  "description": "External invocation authority supplied on stdin by the original authorized requester/lead, never derived from TaskSpec permissions. The checker cannot authenticate the human origin of this input.",
+  "additionalProperties": false,
+  "required": [
+    "authority_version",
+    "task_id",
+    "revision",
+    "spec_sha256",
+    "target_agent_id",
+    "parent_plan",
+    "instruction_sources",
+    "read_grants",
+    "callee_write_grants",
+    "lead_write_grants",
+    "runtime"
+  ],
+  "properties": {
+    "authority_version": {
+      "const": "lead-task-spec-authority/v1",
+      "description": "Exact external authority contract."
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Expected task ID."
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Expected immutable task revision."
+    },
+    "spec_sha256": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Full expected SHA-256 from the authorized caller.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Expected actual named recipient."
+    },
+    "parent_plan": {
+      "type": "object",
+      "description": "Caller-owned authoritative Plan reference.",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "revision"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+          "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Observed current Plan revision."
+        }
+      }
+    },
+    "instruction_sources": {
+      "type": "array",
+      "description": "Original non-secret instructions supplied inline, independent of the generated TaskSpec.",
+      "items": {
+        "type": "object",
+        "description": "Authorized original text.",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "text"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Source ID."
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized original instruction text."
+          }
+        }
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "read_grants": {
+      "type": "array",
+      "description": "Only these paths can be read; TaskSpec cannot enlarge them.",
+      "items": {
+        "type": "object",
+        "description": "Explicit caller grant; directories authorize descendants, files authorize only the exact path.",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Grant kind.",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          }
+        }
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "callee_write_grants": {
+      "type": "array",
+      "description": "Original authorized callee output boundaries; checker never writes here.",
+      "items": {
+        "type": "object",
+        "description": "Explicit caller grant; directories authorize descendants, files authorize only the exact path.",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Grant kind.",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          }
+        }
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "lead_write_grants": {
+      "type": "array",
+      "description": "Original authorized lead output boundaries; checker never writes here.",
+      "items": {
+        "type": "object",
+        "description": "Explicit caller grant; directories authorize descendants, files authorize only the exact path.",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Grant kind.",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          }
+        }
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "runtime": {
+      "description": "File mode uses a trusted lock path; portable inline mode uses supplied raw lock bytes. Both bind current isolated checker runtime, not callee runtime.",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Verified Evidence-owned checker environment and reviewed lock, selected outside TaskSpec. This is not the business callee runtime and cannot replace its constraints.",
+          "additionalProperties": false,
+          "required": [
+            "python_executable",
+            "environment_prefix",
+            "lock_path",
+            "lock_sha256"
+          ],
+          "properties": {
+            "python_executable": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+            },
+            "environment_prefix": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+            },
+            "lock_path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+            },
+            "lock_sha256": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Full expected SHA-256 from the authorized caller.",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Inline checker runtime identity; exact lock bytes arrive in the transport, no supplied lock path is opened.",
+          "additionalProperties": false,
+          "required": [
+            "python_executable",
+            "environment_prefix",
+            "lock_sha256"
+          ],
+          "properties": {
+            "python_executable": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+            },
+            "environment_prefix": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Caller-authorized absolute normalized path; supplied independently of TaskSpec."
+            },
+            "lock_sha256": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Full expected SHA-256 from the authorized caller.",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

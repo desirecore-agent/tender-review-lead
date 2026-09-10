@@ -1,0 +1,378 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tender-review/lead-delegation-task/v1/schema.json",
+  "type": "object",
+  "description": "Lead delegation TaskSpec: a private per-task data contract, not a platform permission or automatic model-enforcement mechanism.",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "task_id",
+    "revision",
+    "purpose",
+    "parent_plan",
+    "target_agent_id",
+    "instruction_sources",
+    "hard_constraints",
+    "resources",
+    "io_scope",
+    "acceptance_criteria",
+    "failure_policy",
+    "delivery_requirements"
+  ],
+  "properties": {
+    "spec_version": {
+      "const": "lead-delegation-task/v1",
+      "description": "Exact TaskSpec contract identity; unrelated to the six business-artifact contract versions."
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable task identity shared by specification, dispatch and receipts."
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic revision. A change creates a new file and digest; preserve old revisions."
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Bounded goal and necessary background without changing hard constraints."
+    },
+    "parent_plan": {
+      "type": "object",
+      "description": "Caller-owned authoritative Plan reference.",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "revision"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+          "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Observed current Plan revision."
+        }
+      }
+    },
+    "target_agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Actual validated named target Agent; not an inferred UUID or arbitrary worker label."
+    },
+    "instruction_sources": {
+      "type": "array",
+      "description": "Authorized instruction sources whose exact bytes can be read and compared.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "An authorized immutable instruction excerpt or prior task specification. Never include credentials or unrelated history.",
+            "additionalProperties": false,
+            "required": [
+              "source_id",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "source_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Unique instruction-source identity within this task."
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+                "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Full lowercase SHA-256 of the exact bytes; no placeholder or abbreviated digest.",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Inline authorized instruction bytes, independently matched against the caller authority on stdin.",
+            "additionalProperties": false,
+            "required": [
+              "source_id",
+              "text",
+              "sha256"
+            ],
+            "properties": {
+              "source_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Unique instruction-source identity."
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Verbatim authorized non-secret instruction text; not an access grant."
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Full lowercase SHA-256 of the exact bytes; no placeholder or abbreviated digest.",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        ],
+        "description": "An exact inline instruction or a hash-bound file within caller-authorized read scope."
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "hard_constraints": {
+      "type": "array",
+      "description": "Every applicable upstream hard constraint, individually mapped to its verbatim source. Schema cannot prove no omission.",
+      "items": {
+        "type": "object",
+        "description": "A hard instruction copied without paraphrase from one identified source. Completeness still requires comparison against the original.",
+        "additionalProperties": false,
+        "required": [
+          "constraint_id",
+          "category",
+          "source_id",
+          "source_quote",
+          "applies_to",
+          "verification"
+        ],
+        "properties": {
+          "constraint_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique constraint ID, used unchanged by dispatch, preflight and delivery."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Classification only; never changes the quoted instruction.",
+            "enum": [
+              "tool",
+              "skill_helper",
+              "runtime_dependency",
+              "model_approval",
+              "input_output_scope",
+              "evidence",
+              "timeout_temp",
+              "context",
+              "ownership",
+              "failure",
+              "other"
+            ]
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "An existing instruction_sources.source_id."
+          },
+          "source_quote": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact non-whitespace source substring, including conditions, exceptions and prohibitions.",
+            "pattern": "\\S"
+          },
+          "applies_to": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Who must satisfy this constraint; does not grant authority.",
+            "enum": [
+              "lead",
+              "callee",
+              "both"
+            ]
+          },
+          "verification": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What actual observation/receipt is required to establish compliance; not a self-attestation flag."
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "resources": {
+      "type": "array",
+      "description": "Resolved required file/version/hash bindings. Missing mandatory bindings block dispatch; an empty list is not proof none are required.",
+      "items": {
+        "type": "object",
+        "description": "A currently resolved file binding required by a quoted constraint; no substitution when unresolved.",
+        "additionalProperties": false,
+        "required": [
+          "resource_id",
+          "constraint_ids",
+          "kind",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "resource_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique resource binding ID."
+          },
+          "constraint_ids": {
+            "type": "array",
+            "description": "Existing hard-constraint IDs requiring this resource.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Constraint ID."
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Kind of file being bound.",
+            "enum": [
+              "installed_skill",
+              "helper",
+              "runtime_executable",
+              "dependency_lock",
+              "input_manifest",
+              "capability_receipt",
+              "contract_schema",
+              "other"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Full lowercase SHA-256 of the exact bytes; no placeholder or abbreviated digest.",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact required or observed version when applicable; do not infer or invent."
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "io_scope": {
+      "type": "object",
+      "description": "Explicit read-only sources and separately owned write locations. Subject to existing authorization.",
+      "additionalProperties": false,
+      "required": [
+        "read_only_paths",
+        "callee_write_paths",
+        "lead_write_paths"
+      ],
+      "properties": {
+        "read_only_paths": {
+          "type": "array",
+          "description": "Only authorized input/spec/source/installed-resource paths.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "callee_write_paths": {
+          "type": "array",
+          "description": "Output locations owned by the callee; Lead only reads these.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "lead_write_paths": {
+          "type": "array",
+          "description": "Receipt/consolidation locations owned by the lead; disjoint from callee output ownership.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact authorized absolute runtime path; data only, not an access grant. Resolve and check ownership before use.",
+            "pattern": "^(?:/|[A-Za-z]:[\\\\/]|\\\\\\\\).+"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Evidence-backed acceptance criteria referencing the same constraints.",
+      "items": {
+        "type": "object",
+        "description": "Source-backed acceptance obligation, independent of whether a child claims success.",
+        "additionalProperties": false,
+        "required": [
+          "criterion_id",
+          "constraint_ids",
+          "text"
+        ],
+        "properties": {
+          "criterion_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique acceptance criterion ID."
+          },
+          "constraint_ids": {
+            "type": "array",
+            "description": "Existing constraint IDs tested by this criterion.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Constraint ID."
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Evidence and outcome required; retain uncertainty/failure treatment from source."
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "failure_policy": {
+      "const": "report_and_stop_affected_work_without_substitution",
+      "description": "Report mismatches/unavailable prerequisites. Preserve evidence; no silent alternative runtime/tool/method or fabricated success."
+    },
+    "delivery_requirements": {
+      "type": "array",
+      "description": "Required raw evidence, identities and files as specified by the task; summaries do not replace required full artifacts.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Exact delivery obligation."
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}
