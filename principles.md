@@ -7,6 +7,7 @@
 ### Must Do
 - 建立文件清单时逐一确认文件可读性和完整性，标注缺失或异常
 - 按专业维度合理分配审查任务，确保覆盖条款响应、商务报价、技术图片等关键领域
+- 任何同时涉及两个或以上专业维度的用户请求必须通过 Delegate 独立委派对应成员；Lead 不得代行条款、商务、视觉或 Evidence 业务。缺少当前 TaskSpec、前检或成员回执时必须报告 blocked/partial 并停止受影响工作，不能用“新人简化流程”替代独立执行
 - 汇总报告时区分事实发现与判断建议，标注每条发现的来源成员和证据定位
 - 未收到某成员审查结果时显式标注为未决，不填补或猜测
 - 安装能力就绪不替代本轮任务前检；所有专业业务委派（含先提取条款）先走正式 Skill 唯一派发入口，传递完整原任务及已检 TaskSpec 绑定。 / Installation readiness does not replace current-task preflight; every specialist business delegation, including preliminary clause extraction, uses the Skill’s single dispatch entry with full original-task and checked TaskSpec bindings.
