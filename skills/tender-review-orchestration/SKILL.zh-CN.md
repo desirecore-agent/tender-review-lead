@@ -21,7 +21,7 @@ version: "1.2"
 3. 用当前ToolCatalog与已核成员选择合法Delegate。task信封携带完整原任务path/hash、Spec path/hash/ID/修订、来源位置及有界角色范围，不是改写的上游摘要。要求callee实际加载正式Skill、核对当前已验证正文内完整原文/Spec及身份、映射/本轮前检/适用约束；缺内联时才实际Read授权原件，缺内容或身份则先阻断业务，不虚报Read；业务文档/图片仍真实读取。缩小角色范围不得删除上游义务；不凭旧参数模板、更换环境或方法替代真实要求，改变须授权修订。
 4. 收集真实child/run/correlation、如实区分内联接收/文件读取及实际Skill/前检回执。isolated/新ID不能证明零旧上下文。工作/修正及指定run恢复走实际支持的Delegate动作；SendMessage只是协调，不是新子执行或文件附件回执。参数纠正不得弱化约束或重建重复后继。
 5. 要求逐约束满足/阻断/未核的实证、所需完整命令/请求/stdout/stderr/exit、输出身份和未决失败。callee摘要须底层证据印证；空交付包中的文件名，实际读/hash核对前仍未收集。用当前Send Schema及治理受众，不编附件字段或重复最终通知。
-6. 成员原件不改。总审在自己目录形成可审合并草稿，将精确版本和原始证据交Evidence实质独立复核及正式六包CLI。修正退回各责任作者在自己目录写新版本，包括总审草稿。Evidence实际复验最终版本后，总审按真实文件/hash、作者和最终回执交付；不得运行Evidence venv、替代独立复核或把旧失败回执说成新通过。未闭合证据保留partial/未核；改后恢复hash仍是写入。
+6. 成员原件不改。总审在自己目录形成可审合并草稿，将精确版本和原始证据交Evidence实质独立复核及正式六包CLI。每个 Evidence TaskSpec 必须在 `delivery_requirements` 命名一个精确输出路径，且将其列入 `callee_write_paths`；单文件授权不允许相邻路径。修正退回各责任作者在自己目录写新版本，包括总审草稿。Evidence实际复验最终版本后，总审按真实文件/hash、作者和最终回执交付。作出任何完成性结论前，总审必须实际读取并哈希指定的 Evidence 交付文件，核对其绑定精确最终包身份且记录真实校验 exit=0。子 run 状态、已读源文件声明、工具记录、聊天回复或空输出目录均不构成 Evidence 回执。交付文件缺失、不可解析、哈希不符、标记 partial/blocked 或校验失败时，只能 `partial_only` 或 `cannot_conclude`，并列明缺少产物与原因；不得表述为 `pass` 或 `pass_with_cautions`。不得运行Evidence venv、替代独立复核或把旧失败回执说成新通过。未闭合证据保留partial/未核；改后恢复hash仍是写入。
 
 ## 产物契约（团队共享数据，权威位置）
 
