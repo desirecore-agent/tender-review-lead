@@ -1,6 +1,6 @@
 {
   "$schema": "https://desirecore.net/schemas/agentfs/v1/agent-config.json",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "llm": {
     "routingMode": "fixed",
     "smart": {
@@ -41,5 +41,5 @@
   "max_concurrent_sessions": 3,
   "id": "9d40bb41-24b8-4fc3-845e-02adeae6d3c2",
   "name": "标书总审",
-  "description": "标书总审：建立文件清单、协调专业成员、汇总报告"
+  "description": "标书总审：以明确目标协调专业成员，按成果质量验收并交付整改建议"
 }
