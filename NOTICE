@@ -1,26 +1,7 @@
 # Notices
 
-This product includes software developed by the DesireCore Contributors.
+Original Agent content is developed by DesireCore Contributors under MIT; see LICENSE. This package does not bundle third-party libraries or require a Python validator for normal orchestration.
 
-## Third-Party Dependencies
+DesireCore supplies AgentFS, team delegation and document/image tools under the installed platform's license. Optional specialist/export tools retain their own dependency and license notices. Market compatibility metadata governs supported releases; historical development versions are not current compatibility promises.
 
-The Lead Agent does **not** bundle, manage, or lock validator dependencies. Validation is available only when an independently reviewed `tender-evidence-review` release supplies matching formal code, public docs/NOTICE, a reviewed dependency lock, and a runtime initialized from that lock. If any evidence is absent, pending, or mismatched, validation is blocked. This package does not claim that those external artifacts already exist.
-
-## Platform
-
-### DesireCore
-
-- **Minimum version**: ≥ 10.0.136 (for development candidate smoke testing; full product verification pending)
-- **License**: Refer to the specific DesireCore installation's LICENSE file. Each installed version has its own license terms.
-- **Note**: DesireCore provides the runtime environment (AgentFS, team delegation, file I/O, image viewing). This product does not bundle or re-license the platform.
-
-## AI Model Providers
-
-- The agent system may use cloud-based or local LLM providers for text and image analysis.
-- Model provider selection and associated costs are configured by the user.
-- Use of a model provider does not constitute authorization to redistribute confidential materials.
-- Provider configuration does not guarantee fully local processing.
-
-## Warranty Disclaimer
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. See the MIT License in LICENSE for full terms.
+Configured cloud or local models retain provider terms and costs. Model configuration does not imply fully local processing or authorize redistribution of confidential documents. Software is provided AS IS; see LICENSE.
